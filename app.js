@@ -112,9 +112,14 @@ d3.csv("emp_uninsured.csv", function (err, emp_uninsured) {
     .domain([0, d3.max(emp_uninsured, d => d.uninsured)])
     .range([height, 0]);
 
+  var yLinearScale2 = d3.scaleLinear()
+    .domain([0, d3.max(emp_uninsured, d => d.labor_force)])
+    .range([height, 0]);
+
   // Create initial axis functions
   var bottomAxis = d3.axisBottom(xLinearScale);
   var leftAxis = d3.axisLeft(yLinearScale);
+  var rightAxis = d3.axisRight(yLinearScale2);
 
   // append x axis
   var xAxis = chartGroup.append("g")
@@ -125,6 +130,10 @@ d3.csv("emp_uninsured.csv", function (err, emp_uninsured) {
   // append y axis
   chartGroup.append("g")
     .call(leftAxis)
+  
+    // append secondary y axis
+  chartGroup.append("g")
+    .call(rightAxis)
 
   // append initial circles
   var circlesGroup = chartGroup.selectAll("circle")
@@ -158,8 +167,8 @@ d3.csv("emp_uninsured.csv", function (err, emp_uninsured) {
 
   var employedLabel = labelsGroup.append("text")
     .attr("x", 0)
-    .attr("y", 55)
-    .attr("value", "uninsured") //value to grab for event listener
+    .attr("y", 60)
+    .attr("value", "employed") //value to grab for event listener
     .classed("inactive", true)
     .text("Percent Employed");
 
@@ -173,17 +182,13 @@ d3.csv("emp_uninsured.csv", function (err, emp_uninsured) {
     .text("Percent of Population by State");
 
 
-// var text = svgContainer.selectAll("text")
-//     .data(emp_uninsured.state)
+//  chartGroup.append("text")
+//     .data(emp_uninsured)
 //     .enter()
-//     .append("text");
-
-// var textLabels = text
 //     .attr("cx", d => xLinearScale(d[chosenXAxis]))
 //     .attr("cy", d => yLinearScale(d.uninsured))
-//     .text( function (d) { return "( " + d.cx + ", " + d.cy +" )"; })
-//     .attr("font-family", "sans-serif")
-//     .attr("font-size", "20px")
+//     .text(state)
+
  
   // updateToolTip function above csv import
   var circlesGroup = updateToolTip(chosenXAxis, circlesGroup)
