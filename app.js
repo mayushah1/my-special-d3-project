@@ -25,6 +25,7 @@ var chartGroup = svg.append("g")
 
 // Initial Params
 var chosenXAxis = "labor_force"
+var chosenYAxis = "uninsured"
 
 // function used for updating x-scale var upon click on axis label
 function xScale(emp_uninsured, chosenXAxis) {
@@ -65,16 +66,18 @@ function renderCircles(circlesGroup, newXScale, chosenXaxis) {
 function updateToolTip(chosenXAxis, circlesGroup) {
 
   if (chosenXAxis == "labor_force") {
-    var label = "Hair Length:"
+    var label = "Labor Force:"
+  } else if (chosenXAxis == "uninsured"){
+    var label = "Percent Uninsured:"
   } else {
-    var label = "# of Albums:"
+    var label = "Percent Employed:"
   }
 
   var toolTip = d3.tip()
     .attr("class", "tooltip")
     .offset([80, -60])
     .html(function (d) {
-      return (`${d.rockband}<br>${label} ${d[chosenXAxis]}`);
+      return (`${d.state}<br>${label} ${d[chosenXAxis]}`);
     });
 
   circlesGroup.call(toolTip);
@@ -133,28 +136,32 @@ d3.csv("emp_uninsured.csv", function (err, emp_uninsured) {
     .attr("r", 20)
     .attr("fill", "pink")
     .attr("opacity", ".5")
+    .attr("stroke", "maroon")
 
-  // var text = svgContainer.selectAll("text")
-  //   .data(emp_uninsured.state)
-  //   .enter()
-  //   .append("text"); 
   // Create group for  2 x- axis labels
   var labelsGroup = chartGroup.append("g")
     .attr("transform", `translate(${width/2}, ${height + 20})`)
 
-  var hairLengthLabel = labelsGroup.append("text")
+  var laborLabel = labelsGroup.append("text")
     .attr("x", 0)
     .attr("y", 20)
     .attr("value", "labor_force") //value to grab for event listener
     .classed("active", true)
     .text("Labor Force by state (in %)");
 
-  var albumsLabel = labelsGroup.append("text")
+  var uninsuredLabel = labelsGroup.append("text")
     .attr("x", 0)
     .attr("y", 40)
-    .attr("value", "employed") //value to grab for event listener
+    .attr("value", "uninsured") //value to grab for event listener
     .classed("inactive", true)
-    .text("# of Albums Released");
+    .text("Uninsured by State (in %)");
+
+  var employedLabel = labelsGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 55)
+    .attr("value", "uninsured") //value to grab for event listener
+    .classed("inactive", true)
+    .text("Percent Employed");
 
   // append y axis
   chartGroup.append("text")
@@ -163,8 +170,21 @@ d3.csv("emp_uninsured.csv", function (err, emp_uninsured) {
     .attr("x", 0 - (height / 2))
     .attr("dy", "1em")
     .classed("axis-text", true)
-    .text("Number of Billboard 500 Hits");
+    .text("Percent of Population by State");
 
+
+// var text = svgContainer.selectAll("text")
+//     .data(emp_uninsured.state)
+//     .enter()
+//     .append("text");
+
+// var textLabels = text
+//     .attr("cx", d => xLinearScale(d[chosenXAxis]))
+//     .attr("cy", d => yLinearScale(d.uninsured))
+//     .text( function (d) { return "( " + d.cx + ", " + d.cy +" )"; })
+//     .attr("font-family", "sans-serif")
+//     .attr("font-size", "20px")
+ 
   // updateToolTip function above csv import
   var circlesGroup = updateToolTip(chosenXAxis, circlesGroup)
 
@@ -187,25 +207,41 @@ d3.csv("emp_uninsured.csv", function (err, emp_uninsured) {
         // updates x axis with transition
         xAxis = renderAxes(xLinearScale, xAxis);
 
-        // updates circles with new x values
+        // updates circles with new x & y values
         circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
 
         // updates tooltips with new info
         circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
 
         // changes classes to change bold text
-        if (chosenXAxis == "employed") {
-          albumsLabel
+        if (chosenXAxis == "uninsured") {
+          uninsuredLabel
             .classed("active", true)
             .classed("inactive", false)
-          hairLengthLabel
+          laborLabel
+            .classed("active", false)
+            .classed("inactive", true)
+          employedLabel
+            .classed("active", false)
+            .classed("inactive", true)
+        } else if (chosenXAxis == "labor_force") {
+          laborLabel
+            .classed("active", true)
+            .classed("inactive", false)
+          uninsuredLabel
+            .classed("active", false)
+            .classed("inactive", true)
+          employedLabel
             .classed("active", false)
             .classed("inactive", true)
         } else {
-          albumsLabel
+          uninsuredLabel
             .classed("active", false)
             .classed("inactive", true)
-          hairLengthLabel
+          laborLabel
+            .classed("active", false)
+            .classed("inactive", true)
+          employedLabel
             .classed("active", true)
             .classed("inactive", false)
         };
